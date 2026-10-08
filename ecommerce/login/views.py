@@ -9,11 +9,11 @@ def login_view(request):
         if form.is_valid():
             user = form.get_user()
             login(request, user)
-            return redirect('product_list')
+            return redirect('blogs')
     else:
         form = AuthenticationForm()
     return render(request, 'login/login.html', {'form': form})
 
 def logout_view(request):
     logout(request)
-    return redirect('login_login')
+    return redirect('login')

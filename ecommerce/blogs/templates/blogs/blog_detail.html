@@ -1,0 +1,297 @@
+{% extends 'base.html' %}
+
+{% load static %}
+
+{% block content %}
+
+<link rel="stylesheet" href="{% static 'css/rate.css' %}">
+
+<section>
+  <div class="container">
+    <div class="row">
+      <div class="col-sm-9">
+        <div class="blog-post-area">
+          <h2 class="title text-center">Latest From our Blog</h2>
+          <div class="single-blog-post">
+            <h3>{{ blog.title }}</h3>
+            <div class="post-meta">
+              <ul>
+                <li><i class="fa fa-user"></i> {{ blog.author }}</li>
+                <li><i class="fa fa-clock-o"></i> {{ blog.created_at }}</li>
+                <li><i class="fa fa-calendar"></i> {{ blog.description }}3</li>
+              </ul>
+            </div>
+            <a href="">
+              <img src="{{ blog.image.url }}" alt="" />
+            </a>
+            <p>
+              {{ blog.content }}
+            </p>
+
+            <div class="pager-area">
+              <ul class="pager pull-right">
+                {% if prev_blog %}
+                    <li><a href="{% url 'blog_detail' prev_blog.id %}">Pre</a></li>
+                {% else %}
+                    <li style="color: red; cursor: not-allowed">Pre</li>
+                {% endif %}
+
+                {% if next_blog %}
+                    <li><a href="{% url 'blog_detail' next_blog.id %}">Next</a></li>
+                {% else %}
+                    <li style="color: red; cursor: not-allowed">Next</li>
+                {% endif %}
+              </ul>
+            </div>
+          </div>
+        </div>
+
+
+        <div class="rating-area">
+          <ul class="ratings">
+            <li class="rate-this">Rate this blog:</li>
+            <li>
+              <div class="rate">
+                <div class="vote">
+                    <div class="star_1 ratings_stars"><input value="1" type="hidden"></div>
+                    <div class="star_2 ratings_stars"><input value="2" type="hidden"></div>
+                    <div class="star_3 ratings_stars"><input value="3" type="hidden"></div>
+                    <div class="star_4 ratings_stars"><input value="4" type="hidden"></div>
+                    <div class="star_5 ratings_stars"><input value="5" type="hidden"></div>
+                    <span class="rate-np">{{ avg_rating|default:"0" }}</span>
+                </div> 
+              </div>
+            </li>
+            <li class="color">({{ vote_count }} votes)</li>
+          </ul>
+          <ul class="tag">
+            <li>TAG:</li>
+            <li>
+              <a class="color" href="">Pink <span>/</span></a>
+            </li>
+            <li>
+              <a class="color" href="">T-Shirt <span>/</span></a>
+            </li>
+            <li><a class="color" href="">Girls</a></li>
+          </ul>
+        </div>
+
+        <div class="response-area">
+          <h2>{{ comments|length }} RESPONSES</h2>
+          
+          <ul class="media-list" id="comment-list">
+            {% for comment in comments %}
+              {% if comment.level == 0 %}
+              <li class="media">
+                <a class="pull-left" href="#">
+                  <img class="media-object" style="width: 80px; height: 80px;" src="{{ comment.user.avatar.url|default:'/static/images/blog/man-two.jpg' }}" alt="" />
+                </a>
+                <div class="media-body">
+                  <ul class="sinlge-post-meta">
+                    <li><i class="fa fa-user"></i> {{ comment.user.username }}</li>
+                    <li><i class="fa fa-clock-o"></i> {{ comment.created_at }}</li>
+                    <li><i class="fa fa-calendar"></i> {{ comment.created_at }}</li>
+                  </ul>
+                  <p>{{ comment.comment }}</p>
+                  <button type="button" class="btn btn-primary btn-reply" data-id="{{ comment.id }}">
+                    <i class="fa fa-reply"></i> Reply
+                  </button>
+                </div>
+
+                <ul class="reply-list" id="reply-list-{{ comment.id }}" style="padding-left: 0;">
+                  {% for reply in comments %}
+                    {% if reply.level == comment.id %}
+                    <li class="media second-media">
+                      <a class="pull-left" href="#">
+                        <img class="media-object" style="width: 80px; height: 80px;" src="{{ reply.id_user.avatar.url|default:'/static/images/blog/man-three.jpg' }}" alt="" />
+                      </a>
+                      <div class="media-body">
+                        <ul class="sinlge-post-meta">
+                          <li><i class="fa fa-user"></i> {{ reply.user.username }}</li>
+                          <li><i class="fa fa-clock-o"></i> {{ reply.created_at }}</li>
+                          <li><i class="fa fa-calendar"></i> {{ reply.created_at }}</li>
+                        </ul>
+                        <p>{{ reply.cmt }}</p>
+                      </div>
+                    </li>
+                    {% endif %}
+                  {% endfor %}
+                </ul>
+              </li>
+              {% endif %}
+            {% endfor %}
+          </ul>
+        </div>
+        <!--/Response-area-->
+
+        <div class="replay-box">
+          <div class="row">
+            <div class="col-sm-12">
+              <h2>Leave a replay</h2>
+              <div class="text-area">
+                <div class="blank-arrow">
+                  <label>{{ user.username }}</label>
+                </div>
+                <span>*</span>
+                <textarea id="main-comment-text" rows="11" placeholder="Nhập bình luận..."></textarea>
+
+                <button type="button" id="btn-submit-comment" class="btn btn-primary" style="margin-top: 10px;">
+                  Post comment
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+        <!--/Replay Box-->
+
+      </div>
+    </div>
+  </div>
+</section>
+
+<script>
+  $(document).ready(function() {
+    $('.ratings_stars').hover(
+      function() {
+        $(this).prevAll().addBack().addClass('ratings_hover');
+      },
+      function() {
+        $(this).prevAll().addBack().removeClass('ratings_hover');
+      }
+    );
+    $('.ratings_stars').click(function() {
+      var checkLogin = "{{ user.is_authenticated }}";
+      const blogId = "{{ blog.id }}";
+      if(checkLogin) {
+        var rate = $(this).find("input").val()
+        alert(rate);
+        if($(this).hasClass('ratings_over')) {
+          $('.ratings_stars').removeClass('ratings_over');
+          $(this).prevAll().andSelf().addBack('ratings_over');
+        } else {
+          $(this).prevAll().andSelf().addBack('ratings_over');
+        }
+        $.ajax({
+          type: 'POST',
+          headers: {
+            "Content-Type": "application/x-www-form-urlencoded",
+            "X-CSRFToken": "{{ csrf_token }}"
+          },
+          url: '{% url "blog_rate" %}',
+          data: {
+            rate: rate,
+            blog_id: blogId,
+            author_id: '{{ user.id }}'
+          },
+          success: function(data) {
+            if(data.success) {
+              alert("Cảm ơn bạn đã đánh giá");
+            } else {
+              alert("Có lỗi xảy ra: " + data.error);
+            }
+          }
+        })
+      } else {
+        alert("login")
+      }
+    })
+  })
+
+  let level = 0;
+
+  $(document).ready(function() {
+    
+    $(document).on('click', '.btn-reply', function() {
+
+      level = $(this).data('id');
+
+      $('.replay-box')[0].scrollIntoView({
+        behavior: "smooth"
+      });
+      
+      $('#main-comment-text').focus().attr('placeholder', 'Đang trả lời bình luận #' + level + '...');
+    });
+
+    $('#btn-submit-comment').click(function(e) {
+      e.preventDefault();
+
+      var isLogin = "{{ user.is_authenticated }}";
+      const blogId = "{{ blog.id }}";
+
+      if (!isLogin) {
+        alert("Vui lòng đăng nhập để bình luận!");
+        return;
+      }
+
+      var commentContent = $('#main-comment-text').val().trim();
+
+      if (commentContent === "") {
+        alert("Vui lòng nhập nội dung bình luận!");
+        return;
+      }
+
+      $.ajax({
+        type: 'POST',
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded',
+          'X-CSRFToken': '{{ csrf_token }}'
+        },
+        url: '{% url "blog_comment" %}',
+        data: {
+          'blog_id': blogId,
+          'comment': commentContent,
+          'level': level
+        },
+        success: function(response) {
+          if (response.success) {
+            
+            var isChild = (level !== 0);
+            var className = isChild ? "media second-media" : "media";
+            var replyBtnHTML = !isChild ? `
+              <button type="button" class="btn btn-primary btn-reply" data-id="${response.comment_id}">
+                <i class="fa fa-reply"></i> Reply
+              </button>
+            ` : '';
+
+            var newCommentHtml = `
+              <li class="${className}">
+                <a class="pull-left" href="#">
+                  <img class="media-object" style="width: 80px; height: 80px;" src="${response.avatar}" alt="" />
+                </a>
+                <div class="media-body">
+                  <ul class="sinlge-post-meta">
+                    <li><i class="fa fa-user"></i> ${response.user_name}</li>
+                    <li><i class="fa fa-clock-o"></i> ${response.hour}</li>
+                    <li><i class="fa fa-calendar"></i> ${response.time}</li>
+                  </ul>
+                  <p>${response.comment}</p>
+                  ${replyBtnHTML}
+                </div>
+                ${!isChild ? `<ul class="reply-list" id="reply-list-${response.comment_id}" style="padding-left: 0;"></ul>` : ''}
+              </li>
+            `;
+
+            if (level === 0) {
+              $('#comment-list').append(newCommentHtml);
+            } else {
+              $('#reply-list-' + level).append(newCommentHtml);
+            }
+
+            $('#main-comment-text').val('').attr('placeholder', 'Nhập bình luận...');
+            level = 0;
+
+          } else {
+            alert("Lỗi: " + response.error);
+          }
+        },
+        error: function() {
+          alert("Có lỗi xảy ra khi kết nối tới máy chủ.");
+        }
+      });
+    });
+
+  });
+
+</script>
+
+{% endblock %}
