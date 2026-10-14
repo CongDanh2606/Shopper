@@ -1,0 +1,72 @@
+{% extends 'base.html' %} {% load static %} {% block content %}
+
+<section>
+  <div class="col-sm-9">
+    <div class="blog-post-area">
+      <h2 class="title text-center">Update user</h2>
+      <div class="signup-form">
+        <h2>User Update!</h2>
+        <form action="#" method="POST" enctype="multipart/form-data">
+          {% csrf_token %}
+          <input
+            type="text"
+            placeholder="Name"
+            name="username"
+            value="{{ user_info.username}}"
+          />
+          <input
+            type="email"
+            placeholder="Email Address"
+            name="email"
+            value="{{ user_info.email }}"
+          />
+          <input type="password" placeholder="Password" name="password" />
+          <input
+            type="password"
+            placeholder="Confirm Password"
+            name="confirm_password"
+          />
+          <select name="country" id="">
+            {% for country in countries %}
+            <option
+              value="{{ country.id }}"
+              {%
+              if
+              country.id=""
+              ="user_info.id_country_id"
+              %}selected{%
+              endif
+              %}
+            >
+              {{ country.name }}
+            </option>
+            {% endfor %}
+          </select>
+          <input
+            type="first_name"
+            placeholder="First Name"
+            name="first_name"
+            value="{{ user_info.first_name }}"
+          />
+          <input
+            type="last_name"
+            placeholder="Last Name"
+            name="last_name"
+            value="{{ user_info.last_name }}"
+          />
+          <input type="file" name="avatar" />
+          {% if messages %} {% for message in messages %}
+          <p
+            style="{% if message.tags == 'error' %}color: red;{% else %}color: green;{% endif %}"
+          >
+            {{ message }}
+          </p>
+          {% endfor %} {% endif %}
+          <button type="submit" class="btn btn-default">Update</button>
+        </form>
+      </div>
+    </div>
+  </div>
+</section>
+
+{% endblock %}

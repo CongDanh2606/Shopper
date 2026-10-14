@@ -1,0 +1,41 @@
+{% extends 'base.html' %} {% block content %}
+
+<section>
+  <div class="col-sm-9">
+    <div class="table-responsive cart_info">
+      <table class="table table-condensed">
+        <thead>
+          <tr class="cart_menu">
+            <td class="id">Id</td>
+            <td class="name">Name</td>
+            <td class="image">Image</td>
+            <td class="price">Price</td>
+            <td class="total">Action</td>
+          </tr>
+        </thead>
+        <tbody>
+          {% for product in products %}
+          <tr id="product-row-{{ product.id }}">
+            <td class="product_id">{{ product.id }}</td>
+            <td class="cart_description">
+              {{ product.name }}
+            </td>
+            <td class="cart_product">
+              <a><img src="/media/products/{{ product.image_filenames.0 }}" style="width: 50%; height: 50%; object-fit: cover;"></a>
+            </td>
+            <td class="cart_price">
+              <p>${{ product.price }}</p>
+            </td>
+            <td class="cart_total">
+              <a href="" style="color: blue;">Edit</a>
+              <button type="button" style="color: red;">Delete</button>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+{% endblock %}

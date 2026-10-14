@@ -86,9 +86,6 @@
           <div class="shop-menu clearfix pull-right">
             <ul class="nav navbar-nav">
               <li>
-                <a href=""><i class="fa fa-user"></i> Account</a>
-              </li>
-              <li>
                 <a href=""><i class="fa fa-star"></i> Wishlist</a>
               </li>
               <li>
@@ -102,10 +99,15 @@
 
               {% if user.is_authenticated %}
               <li>
-                <a href="{% url 'logout' %}"
-                  ><i class="fa fa-lock"></i> Xin chào: {{ user.username }} |
-                  id: {{ user.id }} | Logout</a
-                >
+                <a href="{% url 'account_update' %}"><i class="fa fa-user"></i> Account</a>
+              </li>
+
+              <li>
+                <a a href="{% url 'logout' %}"><i class="fa fa-user"></i> Logout</a>
+              </li>
+
+              <li>
+                <a href=""><i class="fa fa-lock"></i> Xin chào: {{ user.username }}</a>
               </li>
               {% else %}
               <li>
